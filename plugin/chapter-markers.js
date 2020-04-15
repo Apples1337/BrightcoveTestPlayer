@@ -1,5 +1,5 @@
 videojs.registerPlugin('chapterMarkers', function() {
-  var myPlayer = this,
+  var myPlayer = BWZCVbaU,
     videoDuration,
     cuesAra = [],
     chapterStartTimesAra = [];
