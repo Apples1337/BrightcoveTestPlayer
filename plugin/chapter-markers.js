@@ -1,42 +1,36 @@
-videojs.registerPlugin('chapterMarkers', function() {
-  var myPlayer = this,
-    videoDuration,
-    cuesAra = [],
-    chapterStartTimesAra = [];
-  myPlayer.on('loadedmetadata', function() {
-    // +++  Use the array filter function to retrieve data structure that contains chapter cue points +++
-    chapterTT = [].filter.call(videojs.players.myPlayerID.textTracks(), function(tt) {
-      return tt.kind === 'chapters';
-    });
-    //  Retrieve actual array of chapter cue points
-    cuesAra = chapterTT[0].cues;
+videojs.getPlayer('myPlayerID').ready(function() {
+  var myPlayer = this;
+  // Create a div in which to place HTML content and place image inside
+  var newElement = document.createElement("div");
+  newElement.innerHTML =
+    "<img src='https://i.imgur.com/EcAGGHx.jpg'>";
+  // Define options object to be used for modal content
+  var options = {};
+  options.content = newElement;
 
-    // +++ Loop over chapter cue points and get start time of each  +++
-    for (var i = 0; i < cuesAra.length; i++) {
-      chapterStartTimesAra[i] = cuesAra[i].startTime;
+  // Create Modal with options object
+  var ModalDialog = videojs.getComponent("ModalDialog");
+  var myModal = new ModalDialog(myPlayer, options);
+  myPlayer.addChild(myModal);
+
+  // Listen for an error event
+  myPlayer.on("error", function(err) {
+    // The Modal should only be displayed if the error code is 4
+    // and the duration is NaN (not a number)
+    // The following code gets the error code and duration
+    var errNo = myPlayer.error().code;
+    var duration = myPlayer.duration();
+    //Check if the error code and duration mean no video has loaded
+    if (errNo == "4" && isNaN(duration)) {
+      // Hide the error display
+      myPlayer.errorDisplay.hide();
+      // If conditions met show the custom modal
+      myModal.open();
     }
-
-    // +++ Call function to create marks in progress bar  +++
-    // Get the video duration
-    videoDuration = myPlayer.mediainfo.duration;
-    // Call the function to add the marks in the progress control
-    addMarkers(chapterStartTimesAra, videoDuration);
   });
 
-  // +++ Add chapter markers +++
-  function addMarkers(cuePointsAra, videoDuration) {
-    var iMax = cuePointsAra.length,
-      i,
-      playheadWell = document.getElementsByClassName('vjs-progress-control vjs-control')[0];
-    // Loop over each cue point, dynamically create a div for each
-    // then place in div progress bar
-    for (i = 0; i < iMax; i++) {
-      var elem = document.createElement('div');
-      elem.className = 'vjs-marker';
-      elem.id = 'cp' + i;
-      elem.style.left = (cuePointsAra[i] / videoDuration) * 100 + '%';
-      console.log('elem.style.left', elem.style.left);
-      playheadWell.appendChild(elem);
-    }
-  }
+  // If custom modal error closed, show the default error
+  myModal.on("modalclose", function() {
+    myPlayer.errorDisplay.show();
+  });
 });
