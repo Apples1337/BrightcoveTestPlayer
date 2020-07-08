@@ -1,4 +1,4 @@
-videojs.getPlayer('myPlayerID').ready(function() {
+videojs.getPlayer('BWZCVbaU').ready(function() {
   var myPlayer = this;
   // Create a div in which to place HTML content and place image inside
   var newElement = document.createElement("div");
